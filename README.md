@@ -7,8 +7,10 @@ A shared skills repository for the team. Today it ships one skill:
 - **`jira-cli`** — set up and use [JiraCLI](https://github.com/ankitpokhrel/jira-cli)
   so any developer can manage Jira (Cloud or Server) from the terminal, without
   the web UI. One invocation leaves the tool installed (pinned Docker image, or
-  a local binary fallback), the shell equipped (wrapper + completions + `jm`),
-  the credential and config in place, and the assigned tasks reachable.
+  a local binary fallback), an executable `jira` shim on PATH (so the command
+  works in any shell, including an agent's non-interactive one), the shell
+  equipped (wrapper + completions + `jm`), the credential and config in place,
+  and the assigned tasks reachable.
 
 The skill is idempotent, never touches the API token value, and verifies itself
 before reporting success.

@@ -65,6 +65,13 @@ is in `references/onboarding.md`.
 Use these scripts directly when you need finer control. They are bash and read
 the pinned version/paths from `scripts/_lib.sh`.
 
+**Agents / non-interactive:** after setup `jira` is an **executable Docker shim
+on PATH** (installed at `~/.local/bin/jira`), so run clean commands directly:
+`jira issue view KEY-123 --plain`, `jira issue list -a$(jira me)`, `jm`. Do
+**not** reconstruct the `docker run` line, and do **not** `cat` `scripts/_lib.sh`
+or `~/.config/.jira/.config.yml` — environment state comes from
+`scripts/detect.sh`. The `scripts/` are for setup/fine control, not per-call use.
+
 ### 0. Preflight — know the environment
 
 ```bash
@@ -88,8 +95,8 @@ scripts/install.sh --local    # force release binary into ~/.local/bin
 ### 2. Equip the shell
 
 ```bash
-scripts/install_wrapper.sh        # detects $SHELL, installs the jira function
-scripts/install_completions.sh    # installs completions for the same shell
+scripts/install_wrapper.sh        # installs the Docker shim (~/.local/bin/jira) + jm
+scripts/install_completions.sh    # installs completions for the detected shell
 ```
 
 The wrapper forwards `JIRA_API_TOKEN` into the container and only allocates a
@@ -153,11 +160,12 @@ Tell the user, concisely:
 - the daily commands, e.g.:
 
 ```bash
-jira issue list -a$(jira me)            # my tasks (interactive UI)
+jira issue list -a$(jira me)             # my tasks (interactive UI)
 jm                                       # same, via the abbreviation
 jira sprint list --current -a$(jira me)  # current sprint
 jira issue list -a$(jira me) --plain     # pipe-friendly
-jira issue view PROJ-123                # details in the terminal
+jira issue view PROJ-123 --plain                   # details (+ subtasks inline)
+jira issue list -q "parent = PROJ-123" --plain     # subtasks only
 ```
 
 For more (JQL, transitions, comments, multiple configs) read
@@ -177,7 +185,8 @@ For more (JQL, transitions, comments, multiple configs) read
 The task is complete only when all hold:
 
 - Executable available (pinned image present, or `~/.local/bin/jira`).
-- `jira version` runs through the installed shell function.
+- `jira` resolves on PATH without sourcing any rc file (`detect.sh` →
+  `jira_on_path: true`); `jira version` runs from a non-interactive shell.
 - Credential present; never printed.
 - `~/.config/.jira/.config.yml` exists, is owned by the user, with correct
   server/login/project/board.

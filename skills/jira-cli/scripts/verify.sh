@@ -25,6 +25,19 @@ check() { # check <label> <command...>
 # 1. Executable reachable
 check "jira version" jira_cmd version
 
+# 1b. Clean command on PATH for non-interactive shells (agents run `bash -c`,
+# which never reads rc files). This is what makes `jira ...` work everywhere.
+if command -v jira >/dev/null 2>&1; then
+  ok "jira en PATH: $(command -v jira)"
+  if out="$(jira version 2>/dev/null)" && [ -n "$out" ]; then
+    ok "jira version en shell no interactiva"
+  else
+    warn "jira no corre en shell no interactiva"; fails=$((fails+1))
+  fi
+else
+  warn "jira no está en PATH; agrega ~/.local/bin (los agentes no verán el comando)"; fails=$((fails+1))
+fi
+
 # 2. Config on disk
 config="$JIRA_CONFIG_DIR/.config.yml"
 if [ -f "$config" ]; then

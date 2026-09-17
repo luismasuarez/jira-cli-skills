@@ -1,5 +1,20 @@
 # Troubleshooting
 
+## `jira: command not found` (especially in non-interactive/agent shells)
+
+`jira` must be the executable shim at `~/.local/bin/jira`, not only an rc-loaded
+shell function: agents run `bash -c`, which never sources `~/.bashrc`/`.zshrc`.
+
+Fix:
+
+```bash
+scripts/install_wrapper.sh            # reinstala el shim
+command -v jira                       # debe resolver a ~/.local/bin/jira
+export PATH="$HOME/.local/bin:$PATH"  # si no estaba en PATH (añádelo a tu rc)
+```
+
+`scripts/detect.sh` reports `jira_on_path` and `shim_present`.
+
 ## `invalid character '<' looking for beginning of value`
 
 The API returned HTML, not JSON. Almost always the **server URL includes a

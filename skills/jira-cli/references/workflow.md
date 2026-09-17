@@ -1,7 +1,8 @@
 # Daily workflow
 
-Everything below runs through the `jira` shell function (Docker-backed). Use it
-from the terminal; for scripting use `--plain`/`--raw`/`--csv`.
+Everything below runs through `jira`, an executable Docker shim on PATH (works
+in any shell, interactive or not — no rc file needed). For scripting use
+`--plain`/`--raw`/`--csv`.
 
 ## Find your work
 
@@ -13,6 +14,13 @@ jira issue list -a$(jira me) --raw        # JSON
 jira issue list -a$(jira me) --csv        # CSV
 jira sprint list --current -a$(jira me)   # current sprint
 jira issue list --history                 # tickets you opened recently
+```
+
+## Subtasks of an issue
+
+```bash
+jira issue view PROJ-123 --plain                 # description + subtasks inline
+jira issue list -q "parent = PROJ-123" --plain   # subtask list, one per line
 ```
 
 ## Filters (combinable)
@@ -30,7 +38,7 @@ jira issue list -q "summary ~ login"               # raw JQL in project context
 ## Inspect and act
 
 ```bash
-jira issue view KEY-123                 # details (add --comments N)
+jira issue view KEY-123 --plain         # details (add --comments N)
 jira issue move KEY-123 "In Progress"   # transition; --comment "..." too
 jira issue comment add KEY-123 "text"
 jira issue create -tBug -s"Summary" -yHigh -b"Description" --no-input

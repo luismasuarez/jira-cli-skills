@@ -56,6 +56,19 @@
         "verify.sh termina con exit code 0",
         "Re-ejecutar setup.sh no duplica bloques ni sobreescribe la config"
       ]
+    },
+    {
+      "id": 5,
+      "name": "list-subtasks-read-only",
+      "prompt": "Busca en Jira el issue CHUR-315 y dame la lista de subtareas a realizar. No abras el navegador.",
+      "expected_output": "Se listan las subtareas de CHUR-315 con un comando limpio (jira en PATH), sin explorar archivos internos del skill ni reconstruir el comando docker.",
+      "files": [],
+      "assertions": [
+        "Usa el comando `jira` (shim en PATH) directamente; no reconstruye el `docker run`",
+        "No ejecuta cat sobre scripts/_lib.sh ni sobre ~/.config/.jira/.config.yml",
+        "Usa `--plain` en `jira issue view` (o `issue list -q \"parent = KEY\"`)",
+        "La respuesta enumera las subtareas/claves del issue CHUR-315"
+      ]
     }
   ]
 }

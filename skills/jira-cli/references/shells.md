@@ -1,8 +1,25 @@
 # Shell integration
 
-`install_wrapper.sh` installs a `jira` function so the command behaves natively
-while the actual work runs in the pinned Docker image. `install_completions.sh`
-adds completion for the same shell.
+`install_wrapper.sh` installs **two things**:
+
+1. An **executable Docker shim** `~/.local/bin/jira` (and `~/.local/bin/jm`).
+   This is the source of truth: it works in every shell, interactive or not,
+   including the non-interactive `bash -c` an agent runs (which never reads rc
+   files).
+2. The rc-based `jira` function and `jm` abbreviation, for interactive
+   convenience and shell completion.
+
+`install_completions.sh` adds completion for the same shell.
+
+## Executable shim (Docker-only)
+
+- Installed at `~/.local/bin/jira`; requires Docker and `~/.local/bin` on PATH.
+- Runs the pinned image with the same flags as the function (uid/gid, config
+  mount, token from env, `-it` only on a TTY).
+- Fails with a clear message if Docker is missing — there is no local fallback.
+- `~/.local/bin/jm` is a tiny shim: `jira issue list -a"$(jira me)" --plain`.
+- Check it with `scripts/detect.sh` (`jira_on_path`, `shim_present`) or
+  `command -v jira`.
 
 ## What the wrapper does
 
@@ -13,7 +30,8 @@ adds completion for the same shell.
 - Forwards `JIRA_API_TOKEN` from the environment.
 - Adds `-it` **only when stdin and stdout are TTYs**, so pipelines and command
   substitution (`$(jira me)`, `jira ... --plain | grep`) keep working.
-- Falls back to `~/.local/bin/jira` when Docker is not available.
+- Falls back to the real `~/.local/bin/jira` binary when Docker is absent
+  (local-install mode only; in Docker mode that path is the shim itself).
 
 The same logic lives in `scripts/_lib.sh` (`jira_cmd`) for non-interactive use
 by the other scripts.
@@ -22,6 +40,7 @@ by the other scripts.
 
 | Shell | Wrapper | Completions |
 |-------|---------|-------------|
+| any   | `~/.local/bin/jira` (+ `jm`) — executable shim | — |
 | fish  | `~/.config/fish/functions/jira.fish` | `~/.config/fish/completions/_jira.fish` |
 | bash  | block in `~/.bashrc` (markers) | `~/.local/share/bash-completion/completions/jira` |
 | zsh   | block in `~/.zshrc` (markers) | `~/.zfunc/_jira` (+ `fpath` line) |
@@ -49,8 +68,9 @@ To add it by hand instead:
 
 ## New shell required
 
-Config-time files are read when the shell starts. Tell the user to open a new
-terminal (or `source` the rc / `so` if they have that abbreviation).
+The executable shim works **immediately** (no rc reload) as long as
+`~/.local/bin` is on PATH. The rc-based function/alias and completions are read
+when the shell starts, so those need a new terminal (or `source` the rc).
 
 ## Manual install (no scripts)
 

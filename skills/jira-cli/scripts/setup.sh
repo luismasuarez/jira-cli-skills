@@ -130,16 +130,16 @@ Token (nunca se pide por chat)
 Qué hace el wizard
   1. Detecta entorno y qué falta
   2. Instala la imagen Docker pineada (o binario en ~/.local/bin)
-  3. Instala la función jira, completions y la abreviatura jm
+  3. Instala el comando jira (shim Docker en ~/.local/bin), completions y jm
   4. Verifica el token (sin verlo)
   5. Resuelve URL/email/proyecto/board y los valida contra la API
   6. Genera ~/.config/.jira/.config.yml y verifica
 
-Resultado
-  jm                                     # tus tareas
-  jira issue list -a\$(jira me)           # TUI interactiva
+Resultado (comando limpio, funciona en cualquier shell, también sin rc)
+  jm                                       # tus tareas
+  jira issue list -a\$(jira me)             # TUI interactiva
   jira sprint list --current -a\$(jira me)
-  jira issue view PROJ-123
+  jira issue view PROJ-123 --plain
 EOF
 }
 
@@ -337,13 +337,18 @@ if ! bash "$SELF_DIR/verify.sh"; then
   die "La verificación falló. Revisa los mensajes y references/troubleshooting.md."
 fi
 
+if ! printf '%s' ":$PATH:" | grep -qF ":$HOME/.local/bin:"; then
+  warn "~/.local/bin no está en tu PATH. Agrega: export PATH=\"\$HOME/.local/bin:\$PATH\""
+fi
+
 cat >&2 <<'EOF'
 
-  Listo. Abre una shell nueva (o recarga tu rc) y prueba:
+  Listo. `jira` ya es un comando en PATH (shim Docker), así que funciona en
+  cualquier shell, incluso sin cargar tu rc. Prueba directo:
 
+    jira issue view PROJ-123 --plain         # detalle (pipe-friendly)
     jm                                       # tus tareas
     jira issue list -a$(jira me)             # TUI interactiva
     jira sprint list --current -a$(jira me)  # sprint actual
-    jira issue view PROJ-123                 # detalle
 
 EOF

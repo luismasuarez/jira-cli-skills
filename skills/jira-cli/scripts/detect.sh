@@ -32,6 +32,17 @@ fi
 local_bin_present=false
 if [ -x "$JIRA_LOCAL_BIN" ]; then local_bin_present=true; fi
 
+# shim_present: the executable Docker shim installed at $JIRA_LOCAL_BIN.
+shim_present=false
+if [ -f "$JIRA_LOCAL_BIN" ] && grep -qF 'jira-cli skill' "$JIRA_LOCAL_BIN" 2>/dev/null; then
+  shim_present=true
+fi
+
+# jira_on_path: `jira` is reachable without sourcing any rc file (this is what
+# an agent's non-interactive shell sees).
+jira_on_path=false
+if command -v jira >/dev/null 2>&1; then jira_on_path=true; fi
+
 wrapper_present=false
 case "$shell_name" in
   fish)
@@ -65,6 +76,8 @@ cat <<JSON
   "config_exists": $config_exists,
   "token_present": $token_present,
   "token_source": "$(token_source)",
-  "wrapper_present": $wrapper_present
+  "wrapper_present": $wrapper_present,
+  "shim_present": $shim_present,
+  "jira_on_path": $jira_on_path
 }
 JSON
