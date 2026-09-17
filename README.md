@@ -1,5 +1,7 @@
 # jira-cli-skills
 
+[![skills.sh](https://skills.sh/b/luismasuarez/jira-cli-skills)](https://skills.sh/luismasuarez/jira-cli-skills)
+
 A shared skills repository for the team. Today it ships one skill:
 
 - **`jira-cli`** — set up and use [JiraCLI](https://github.com/ankitpokhrel/jira-cli)
@@ -19,6 +21,15 @@ before reporting success.
 - Optional: `python3` (used by `discover.sh` to format API responses).
 
 ## Register the skill
+
+Install it with the open skills CLI (works with opencode, Claude Code, Cursor,
+Codex and 37+ agents):
+
+```bash
+npx skills add luismasuarez/jira-cli-skills
+```
+
+Or register this repo's `skills/` directory directly.
 
 opencode and Claude Code both load skills from a `SKILL.md` folder. Point them
 at this repo's `skills/` directory.
