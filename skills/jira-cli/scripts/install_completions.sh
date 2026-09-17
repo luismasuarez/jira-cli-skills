@@ -11,8 +11,6 @@ SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$SELF_DIR/_lib.sh"
 
 shell="${1:-$(detect_shell)}"
-begin='# >>> jira-cli skill >>>'
-end='# <<< jira-cli skill <<<'
 tmp="$(mktemp "${TMPDIR:-/tmp}/jira-completion.XXXXXX")"
 trap 'rm -f "$tmp"' EXIT
 
@@ -31,14 +29,14 @@ case "$shell" in
     dest="$HOME/.zfunc/_jira"
     mkdir -p "$(dirname "$dest")"
     jira_cmd completion zsh >"$tmp"
-    if ! grep -qF 'jira-cli skill' "$HOME/.zshrc" 2>/dev/null || ! grep -qF 'fpath=(~/.zfunc' "$HOME/.zshrc" 2>/dev/null; then
-      if ! grep -qF 'fpath=(~/.zfunc' "$HOME/.zshrc" 2>/dev/null; then
-        replace_block "$HOME/.zshrc" "$begin" "$end" \
-          "# >>> jira-cli skill >>>
-fpath=(~/.zfunc \$fpath)
-# <<< jira-cli skill <<<" || true
-        ok "fpath de zsh actualizado (~/.zfunc)"
-      fi
+    if ! grep -qF 'fpath=(~/.zfunc' "$HOME/.zshrc" 2>/dev/null; then
+      replace_block "$HOME/.zshrc" \
+        '# >>> jira-cli skill:zfunc >>>' \
+        '# <<< jira-cli skill:zfunc <<<' \
+        '# >>> jira-cli skill:zfunc >>>
+fpath=(~/.zfunc $fpath)
+# <<< jira-cli skill:zfunc <<<' || true
+      ok "fpath de zsh actualizado (~/.zfunc)"
     fi
     ;;
   *)

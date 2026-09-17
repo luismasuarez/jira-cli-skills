@@ -23,10 +23,11 @@ before reporting success.
 ## Register the skill
 
 Install it with the open skills CLI (works with opencode, Claude Code, Cursor,
-Codex and 37+ agents):
+Codex and 37+ agents). Global install (`-g`) gives a stable path under
+`~/.agents/skills/`:
 
 ```bash
-npx skills add luismasuarez/jira-cli-skills
+npx skills add luismasuarez/jira-cli-skills -g
 ```
 
 Or register this repo's `skills/` directory directly.
@@ -62,6 +63,33 @@ Then **restart** the agent so it reloads config.
 ./install.sh --link opencode # symlinks into ~/.config/opencode/skills
 ```
 
+## After installing — the teammate flow
+
+One command configures everything (tool, shell, completions, `jm`, config,
+verification):
+
+```bash
+~/.agents/skills/jira-cli/scripts/setup.sh   # or the jira-setup alias it creates
+```
+
+The only manual step is pasting your **API token**; the wizard tells you exactly
+how and waits. Site URL, email, project and board are resolved automatically:
+
+```
+flags > env (JIRA_*) > ~/.config/jira-cli-skills/defaults.env > git user.email > prompt
+```
+
+The company provisions `~/.config/jira-cli-skills/defaults.env` (template:
+`skills/jira-cli/assets/defaults.env.example`) so a dev only pastes the token.
+Details: [skills/jira-cli/references/onboarding.md](skills/jira-cli/references/onboarding.md).
+
+Useful modes:
+
+```bash
+scripts/setup.sh --guide    # print requirements/links/commands; change nothing
+scripts/setup.sh --yes      # agent/CI: no prompts; exit 2 stating what is missing
+```
+
 ## Use it
 
 Ask the agent, in plain language, e.g.:
@@ -69,7 +97,7 @@ Ask the agent, in plain language, e.g.:
 - "Configúrame Jira CLI y muéstrame mis tareas."
 - "Quiero ver el PROJ-123 desde la terminal."
 
-Or run the setup manually, in order:
+Or run the steps manually, in order:
 
 ```bash
 skills/jira-cli/scripts/detect.sh

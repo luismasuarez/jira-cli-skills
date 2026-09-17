@@ -41,6 +41,21 @@
         "La salida contiene la clave PROJ-123 y su resumen",
         "No se abre ningún navegador"
       ]
+    },
+    {
+      "id": 4,
+      "name": "newdev-onboarding-with-company-defaults",
+      "prompt": "Soy nuevo en el equipo, ya tengo el token de Jira configurado en mi shell y la empresa me dejó sus defaults. Déjame todo listo para ver mis tareas.",
+      "expected_output": "Se ejecuta scripts/setup.sh una sola vez: resuelve site/email/proyecto/board desde defaults sin preguntar, instala wrapper+completions+jm, genera la config y termina con verify.sh en verde, mostrando las tareas asignadas al final.",
+      "files": [],
+      "assertions": [
+        "setup.sh se ejecuta sin pedir el valor del token",
+        "El token nunca aparece en la salida",
+        "No se pregunta la URL ni el email cuando los defaults están presentes",
+        "Se crea/reutiliza ~/.config/.jira/.config.yml con owner del usuario",
+        "verify.sh termina con exit code 0",
+        "Re-ejecutar setup.sh no duplica bloques ni sobreescribe la config"
+      ]
     }
   ]
 }

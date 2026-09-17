@@ -13,6 +13,7 @@ set -euo pipefail
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
 . "$SELF_DIR/_lib.sh"
+load_defaults
 
 : "${JIRA_SERVER:?Falta JIRA_SERVER (p.ej. https://acme.atlassian.net)}"
 : "${JIRA_LOGIN:?Falta JIRA_LOGIN (tu email de Atlassian)}"

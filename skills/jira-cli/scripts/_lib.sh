@@ -11,6 +11,38 @@ JIRA_CLI_IMAGE_TAG="${JIRA_CLI_IMAGE_TAG:-v1.7.0}"
 JIRA_CLI_IMAGE="${JIRA_CLI_IMAGE:-ghcr.io/ankitpokhrel/jira-cli:${JIRA_CLI_IMAGE_TAG}}"
 JIRA_CONFIG_DIR="${JIRA_CONFIG_DIR:-$HOME/.config/.jira}"
 JIRA_LOCAL_BIN="${JIRA_LOCAL_BIN:-$HOME/.local/bin/jira}"
+JIRA_DEFAULTS_FILE="${JIRA_DEFAULTS_FILE:-${XDG_CONFIG_HOME:-$HOME/.config}/jira-cli-skills/defaults.env}"
+
+# load_defaults reads a KEY=VALUE file with a whitelist of keys and exports any
+# value not already present in the environment. It never executes the file
+# (no `source`), so a malformed or hostile file cannot run code.
+load_defaults() {
+  [ -f "$JIRA_DEFAULTS_FILE" ] || return 0
+  local line key val
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in ''|'#'*) continue ;; esac
+    case "$line" in *=*) : ;; *) continue ;; esac
+    key="${line%%=*}"
+    val="${line#*=}"
+    key="$(printf '%s' "$key" | tr -d '[:space:]')"
+    case "$key" in
+      JIRA_SERVER|JIRA_LOGIN|JIRA_INSTALLATION|JIRA_AUTH_TYPE|JIRA_PROJECT|JIRA_BOARD) ;;
+      *) continue ;;
+    esac
+    val="$(printf '%s' "$val" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")"
+    if [ -z "${!key:-}" ]; then
+      printf -v "$key" '%s' "$val"
+      export "$key"
+    fi
+  done <"$JIRA_DEFAULTS_FILE"
+}
+
+# resolve prints the first non-empty of: explicit value, environment variable.
+resolve() {
+  local flag="${1:-}" var="${2:-}"
+  if [ -n "$flag" ]; then printf '%s' "$flag"; return 0; fi
+  printf '%s' "${!var:-}"
+}
 
 # skill_root prints the skill folder (parent of this script's scripts/ dir).
 skill_root() {
@@ -50,6 +82,9 @@ token_source() {
 # (no host install needed) and falls back to a locally installed binary.
 jira_cmd() {
   if have docker; then
+    # Create the bind-mount source ourselves so Docker does not create it as
+    # root (which would make the config unwritable by the user).
+    mkdir -p "$JIRA_CONFIG_DIR" 2>/dev/null || true
     docker run --rm \
       --user "$(id -u):$(id -g)" \
       -e HOME=/home/jira \

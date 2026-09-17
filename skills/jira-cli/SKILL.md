@@ -15,7 +15,7 @@ compatibility:
   - opencode
   - claude-code
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   tags: [jira, atlassian, cli, docker, setup, tasks, developer-workflow]
 ---
 
@@ -43,10 +43,27 @@ re-prompt, or overwrite an existing config unless explicitly forced.
 - **Verify before reporting success.** Run `scripts/verify.sh` and only claim
   done when it passes.
 
-## Workflow
+## Fast path — one command
 
-Run the scripts from this skill's directory. They are bash and read the pinned
-version/paths from `scripts/_lib.sh`.
+Prefer `scripts/setup.sh`: it runs the whole flow end to end, resolves values
+without nagging (`flags > env > defaults file > git user.email > prompt`), never
+handles the token value, and is idempotent.
+
+```bash
+scripts/setup.sh            # interactive when a TTY is attached
+scripts/setup.sh --yes      # agent/CI: no prompts; exit 2 stating what is missing
+scripts/setup.sh --guide    # print requirements/commands only, change nothing
+```
+
+Company defaults (site URL, email, optional project/board) live in
+`~/.config/jira-cli-skills/defaults.env` (template: `assets/defaults.env.example`).
+With them, a developer only needs to paste their token. The full teammate flow
+is in `references/onboarding.md`.
+
+## Detailed workflow (what setup.sh does, step by step)
+
+Use these scripts directly when you need finer control. They are bash and read
+the pinned version/paths from `scripts/_lib.sh`.
 
 ### 0. Preflight — know the environment
 
@@ -148,6 +165,7 @@ For more (JQL, transitions, comments, multiple configs) read
 
 ## Reference map (load only when needed)
 
+- `references/onboarding.md` — full teammate flow, company defaults, agent mode.
 - `references/auth.md` — token creation for Cloud/Server, `.netrc`, SSO, mtls.
 - `references/shells.md` — wrapper/completion details, `jm`, manual install.
 - `references/workflow.md` — daily commands, filters, JQL, create/move/comment.
