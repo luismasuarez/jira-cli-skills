@@ -1,0 +1,12 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local test artifacts
+/tmp/
+*.log
+*.bak
+*.bak.*

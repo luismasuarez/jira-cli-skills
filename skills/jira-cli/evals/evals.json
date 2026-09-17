@@ -1,0 +1,46 @@
+{
+  "skill_name": "jira-cli",
+  "skill_path": "skills/jira-cli",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-setup-from-scratch",
+      "prompt": "Estoy en una laptop nueva de la empresa y necesito ver mis tareas de Jira sin abrir el navegador. Configúrame lo que haga falta en la terminal (uso fish en Ubuntu) y muéstrame mis tickets asignados.",
+      "expected_output": "jira-cli instalado (imagen Docker v1.7.0 o binario local), wrapper de fish + completions + jm instalados, token verificado (sin exponerlo), config ~/.config/.jira/.config.yml generada con proyecto/board auto-descubiertos, scripts/verify.sh en verde, y lista de tareas asignadas mostrada.",
+      "files": [],
+      "assertions": [
+        "detect.sh se ejecuta y su salida JSON es parseable",
+        "El token NUNCA aparece en la salida de ningún comando",
+        "Se instala el wrapper (wrapper_present=true tras install_wrapper.sh)",
+        "existe ~/.config/.jira/.config.yml con owner = usuario",
+        "verify.sh termina con exit code 0",
+        "La respuesta final muestra los issues asignados al usuario"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "idempotent-rerun",
+      "prompt": "Vuelve a correr la configuración de Jira CLI que ya hice, para asegurarte de que sigue bien.",
+      "expected_output": "La skill detecta que todo ya está configurado, NO regenera el config, NO duplica bloques en .bashrc/.zshrc/jira.fish, y termina en verde.",
+      "files": [],
+      "assertions": [
+        "config_exists=true y configure.sh no reescribe el archivo (sin --force)",
+        "No se añade un segundo bloque con marcador 'jira-cli skill'",
+        "verify.sh termina con exit code 0",
+        "El token no se imprime"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "view-a-specific-issue",
+      "prompt": "Muéstrame el detalle del ticket PROJ-123 desde la terminal, no quiero abrir el navegador.",
+      "expected_output": "Se ejecuta jira issue view PROJ-123 (vía el wrapper) y se muestra el detalle/subtareas en la terminal.",
+      "files": [],
+      "assertions": [
+        "Se usa el wrapper jira (o jira_cmd) y no una llamada directa a curl",
+        "La salida contiene la clave PROJ-123 y su resumen",
+        "No se abre ningún navegador"
+      ]
+    }
+  ]
+}
